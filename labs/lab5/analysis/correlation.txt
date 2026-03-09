@@ -1,0 +1,23 @@
+]633;E;{   echo "=== SAST/DAST Correlation Report ==="\x3b   echo\x3b   sast_count=$(jq '.results | length' labs/lab5/semgrep/semgrep-results.json 2>/dev/null || echo "0")\x3b   zap_med=$(grep -c 'class="risk-2"' labs/lab5/zap/report-auth.html 2>/dev/null || echo "0")\x3b   zap_high=$(grep -c 'class="risk-3"' labs/lab5/zap/report-auth.html 2>/dev/null || echo "0")\x3b   zap_total=$(( (zap_med / 2) + (zap_high / 2) ))\x3b   nuclei_count=$(wc -l < labs/lab5/nuclei/nuclei-results.json 2>/dev/null || echo "0")\x3b   nikto_count=$(grep -c '^+ ' labs/lab5/nikto/nikto-results.txt 2>/dev/null || echo '0')\x3b   sqlmap_csv=$(find labs/lab5/sqlmap -name 'results-*.csv' 2>/dev/null | head -1)\x3b   if [ -f "$sqlmap_csv" ]\x3b then     sqlmap_count=$(tail -n +2 "$sqlmap_csv" | grep -v '^$' | wc -l)\x3b   else     sqlmap_count=0\x3b   fi\x3b    echo "Security Testing Results Summary:"\x3b   echo\x3b   echo "SAST (Semgrep): $sast_count code-level findings"\x3b   echo "DAST (ZAP authenticated): $zap_total alerts"\x3b   echo "DAST (Nuclei): $nuclei_count template matches"\x3b   echo "DAST (Nikto): $nikto_count server issues"\x3b   echo "DAST (SQLmap): $sqlmap_count SQL injection vulnerabilities"\x3b   echo\x3b   echo "Key Insights:"\x3b   echo\x3b   echo "SAST (Static Analysis):"\x3b   echo "  - Finds code-level vulnerabilities before deployment"\x3b   echo "  - Detects: hardcoded secrets, SQL injection patterns, insecure crypto"\x3b   echo "  - Fast feedback in development phase"\x3b   echo\x3b   echo "DAST (Dynamic Analysis):"\x3b   echo "  - Finds runtime configuration and deployment issues"\x3b   echo "  - Detects: missing security headers, authentication flaws, server misconfigs"\x3b   echo "  - Authenticated scanning reveals more attack surface"\x3b   echo\x3b   echo "Recommendation: Use BOTH approaches for comprehensive security coverage"\x3b } > labs/lab5/analysis/correlation.txt;8a638020-fe23-4ad4-b605-8840d55037c4]633;C=== SAST/DAST Correlation Report ===
+
+Security Testing Results Summary:
+
+SAST (Semgrep): 25 code-level findings
+DAST (ZAP authenticated): 8 alerts
+DAST (Nuclei): 23 template matches
+DAST (Nikto): 82 server issues
+DAST (SQLmap): 1 SQL injection vulnerabilities
+
+Key Insights:
+
+SAST (Static Analysis):
+  - Finds code-level vulnerabilities before deployment
+  - Detects: hardcoded secrets, SQL injection patterns, insecure crypto
+  - Fast feedback in development phase
+
+DAST (Dynamic Analysis):
+  - Finds runtime configuration and deployment issues
+  - Detects: missing security headers, authentication flaws, server misconfigs
+  - Authenticated scanning reveals more attack surface
+
+Recommendation: Use BOTH approaches for comprehensive security coverage
