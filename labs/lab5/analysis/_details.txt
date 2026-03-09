@@ -1,0 +1,29 @@
+]633;E;{   echo '=== METRICS ==='\x3b   echo "SAST findings: $(jq '.results | length' labs/lab5/semgrep/semgrep-results.json)"\x3b   echo "SAST files scanned: $(jq '.paths.scanned | length' labs/lab5/semgrep/semgrep-results.json)"\x3b   echo\x3b   echo '=== TOP5_SEMGREP ==='\x3b   jq -r '.results | sort_by((.extra.metadata.impact // ""), (.extra.severity // "")) | reverse | .[:5] | .[] | "\\(.extra.severity // "UNKNOWN") | \\(.check_id) | \\(.path):\\(.start.line)"' labs/lab5/semgrep/semgrep-results.json\x3b   echo\x3b   echo '=== ZAP_COMPARE ==='\x3b   cat labs/lab5/analysis/zap-comparison.txt\x3b   echo\x3b   echo '=== DAST_SUMMARY ==='\x3b   cat labs/lab5/analysis/dast-summary.txt\x3b   echo\x3b   echo '=== NUCLEI_TOP5 ==='\x3b   head -5 labs/lab5/nuclei/nuclei-results.json | jq -r '. | "\\(.info.severity // "unknown") | \\(.info.name // "") | \\(.matched-at // "")"' 2>/dev/null || true\x3b   echo\x3b   echo '=== NIKTO_TOP5 ==='\x3b   grep '^+ ' labs/lab5/nikto/nikto-results.txt | grep -v '^+ Target\\|^+ Start\\|^+ End\\|^+ SSL\\|^+ Server:' | head -5 || true\x3b   echo\x3b   echo '=== SQLMAP_LOGS ==='\x3b   find labs/lab5/sqlmap -type f | sort\x3b } > labs/lab5/analysis/_summary.txt;8a638020-fe23-4ad4-b605-8840d55037c4]633;C=== SEMGREP_TOP5_DETAILED ===
+ERROR | javascript.sequelize.security.audit.sequelize-injection-express.express-sequelize-injection | /src/data/static/codefixes/dbSchemaChallenge_1.ts:5 | Detected a sequelize statement that is tainted by user-input. This could lead to SQL injection if the variable is user-controlled and is not properly sanitized. In order to prevent SQL injection, it is recommended to use parameterized queries or prepared statements.
+ERROR | javascript.sequelize.security.audit.sequelize-injection-express.express-sequelize-injection | /src/data/static/codefixes/dbSchemaChallenge_3.ts:11 | Detected a sequelize statement that is tainted by user-input. This could lead to SQL injection if the variable is user-controlled and is not properly sanitized. In order to prevent SQL injection, it is recommended to use parameterized queries or prepared statements.
+ERROR | javascript.sequelize.security.audit.sequelize-injection-express.express-sequelize-injection | /src/data/static/codefixes/unionSqlInjectionChallenge_1.ts:6 | Detected a sequelize statement that is tainted by user-input. This could lead to SQL injection if the variable is user-controlled and is not properly sanitized. In order to prevent SQL injection, it is recommended to use parameterized queries or prepared statements.
+ERROR | javascript.sequelize.security.audit.sequelize-injection-express.express-sequelize-injection | /src/data/static/codefixes/unionSqlInjectionChallenge_3.ts:10 | Detected a sequelize statement that is tainted by user-input. This could lead to SQL injection if the variable is user-controlled and is not properly sanitized. In order to prevent SQL injection, it is recommended to use parameterized queries or prepared statements.
+WARNING | generic.html-templates.security.unquoted-attribute-var.unquoted-attribute-var | /src/frontend/src/app/navbar/navbar.component.html:17 | Detected a unquoted template variable as an attribute. If unquoted, a malicious actor could inject custom JavaScript handlers. To fix this, add quotes around the template expression, like this: "{{ expr }}".
+
+=== SEMGREP_CATEGORIES ===
+      6 javascript.sequelize.security.audit.sequelize-injection-express
+      4 javascript.express.security.audit.express-res-sendfile
+      4 javascript.express.security.audit.express-check-directory-listing
+      4 generic.html-templates.security.unquoted-attribute-var
+      2 javascript.lang.security.audit.unknown-value-with-script-tag
+      1 javascript.lang.security.audit.code-string-concat
+      1 javascript.jsonwebtoken.security.jwt-hardcode
+      1 javascript.express.security.injection.raw-html-format
+      1 javascript.express.security.audit.possible-user-input-redirect
+      1 javascript.express.security.audit.express-open-redirect
+
+=== ZAP_AUTH_ADMIN_ENDPOINTS ===
+http://localhost:3000/rest/admin/application-configuration
+
+=== NUCLEI_SEVERITY_BREAKDOWN ===
+     21 info
+      1 medium
+      1 unknown
+
+=== SQLMAP_INJECTION_POINTS ===
+2

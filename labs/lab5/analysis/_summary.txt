@@ -1,0 +1,99 @@
+]633;E;{   echo '=== METRICS ==='\x3b   echo "SAST findings: $(jq '.results | length' labs/lab5/semgrep/semgrep-results.json)"\x3b   echo "SAST files scanned: $(jq '.paths.scanned | length' labs/lab5/semgrep/semgrep-results.json)"\x3b   echo\x3b   echo '=== TOP5_SEMGREP ==='\x3b   jq -r '.results | sort_by((.extra.metadata.impact // ""), (.extra.severity // "")) | reverse | .[:5] | .[] | "\\(.extra.severity // "UNKNOWN") | \\(.check_id) | \\(.path):\\(.start.line)"' labs/lab5/semgrep/semgrep-results.json\x3b   echo\x3b   echo '=== ZAP_COMPARE ==='\x3b   cat labs/lab5/analysis/zap-comparison.txt\x3b   echo\x3b   echo '=== DAST_SUMMARY ==='\x3b   cat labs/lab5/analysis/dast-summary.txt\x3b   echo\x3b   echo '=== NUCLEI_TOP5 ==='\x3b   head -5 labs/lab5/nuclei/nuclei-results.json | jq -r '. | "\\(.info.severity // "unknown") | \\(.info.name // "") | \\(.matched-at // "")"' 2>/dev/null || true\x3b   echo\x3b   echo '=== NIKTO_TOP5 ==='\x3b   grep '^+ ' labs/lab5/nikto/nikto-results.txt | grep -v '^+ Target\\|^+ Start\\|^+ End\\|^+ SSL\\|^+ Server:' | head -5 || true\x3b   echo\x3b   echo '=== SQLMAP_LOGS ==='\x3b   find labs/lab5/sqlmap -type f | sort\x3b } > labs/lab5/analysis/_summary.txt;8a638020-fe23-4ad4-b605-8840d55037c4]633;C=== METRICS ===
+SAST findings: 25
+SAST files scanned: 1014
+
+=== TOP5_SEMGREP ===
+WARNING | generic.html-templates.security.unquoted-attribute-var.unquoted-attribute-var | /src/views/dataErasureForm.hbs:21
+WARNING | javascript.express.security.audit.express-check-directory-listing.express-check-directory-listing | /src/server.ts:281
+WARNING | javascript.express.security.audit.express-check-directory-listing.express-check-directory-listing | /src/server.ts:277
+WARNING | javascript.express.security.audit.express-check-directory-listing.express-check-directory-listing | /src/server.ts:273
+WARNING | javascript.express.security.audit.express-check-directory-listing.express-check-directory-listing | /src/server.ts:269
+
+=== ZAP_COMPARE ===
+ZAP Scan Comparison: Authenticated vs Unauthenticated
+Generated: Mon Mar  9 09:34:56 PM MSK 2026
+
+Unauthenticated Scan:
+  Total alerts: 12
+  High: 0
+  Medium: 2
+  Low: 6
+  Info: 4
+  Unique URLs with findings: 16
+
+Authenticated Scan:
+  Total alerts: 13
+  High: 1
+  Medium: 4
+  Low: 4
+  Info: 4
+  Unique URLs with findings: 22
+
+=== DAST_SUMMARY ===
+DAST Multi-Tool Results Summary
+Generated: Mon Mar  9 09:34:56 PM MSK 2026
+
+=== ZAP ===
+  [HIGH] SQL Injection
+  [MED] Content Security Policy (CSP) Header Not Set
+  [MED] Cross-Domain Misconfiguration
+  [MED] Missing Anti-clickjacking Header
+  [MED] Session ID in URL Rewrite
+  [LOW] Cross-Domain JavaScript Source File Inclusion
+  [LOW] Private IP Disclosure
+  [LOW] Timestamp Disclosure - Unix
+  [LOW] X-Content-Type-Options Header Missing
+  [INFO] Authentication Request Identified
+Total: 13 alert types
+
+=== Nuclei ===
+  Findings: 23
+  [UNKNOWN] DNS Rebinding Attack
+  [INFO] Public Swagger API - Detect
+  [INFO] Missing Subresource Integrity
+  [INFO] security.txt File
+  [INFO] robots.txt file
+
+=== Nikto ===
+  Findings: 82
+  + GET Retrieved access-control-allow-origin header: *
+  + GET The X-XSS-Protection header is not defined. This header can hint to the user agent to protect against some forms of XSS
+  + GET Uncommon header 'x-recruiting' found, with contents: /#/jobs
+  + GET Uncommon header 'feature-policy' found, with contents: payment 'self'
+  + GET Entry '/ftp/' in robots.txt returned a non-forbidden or redirect HTTP code (200)
+
+=== SQLmap ===
+  Injection points: 2
+  Parameter: #1* (URI)
+      Type: boolean-based blind
+      Title: AND boolean-based blind - WHERE or HAVING clause
+  back-end DBMS: SQLite
+  Parameter: JSON #1* ((custom) POST)
+      Type: boolean-based blind
+      Title: OR boolean-based blind - WHERE or HAVING clause (NOT)
+  back-end DBMS: SQLite
+
+=== NUCLEI_TOP5 ===
+
+=== NIKTO_TOP5 ===
++ GET Retrieved access-control-allow-origin header: *
++ GET The X-XSS-Protection header is not defined. This header can hint to the user agent to protect against some forms of XSS
++ GET Uncommon header 'x-recruiting' found, with contents: /#/jobs
++ GET Uncommon header 'feature-policy' found, with contents: payment 'self'
++ GET Entry '/ftp/' in robots.txt returned a non-forbidden or redirect HTTP code (200)
+
+=== SQLMAP_LOGS ===
+labs/lab5/sqlmap/localhost/dump/SQLite_masterdb/Baskets.csv
+labs/lab5/sqlmap/localhost/dump/SQLite_masterdb/Cards.csv
+labs/lab5/sqlmap/localhost/dump/SQLite_masterdb/Challenges.csv
+labs/lab5/sqlmap/localhost/dump/SQLite_masterdb/Deliveries.csv
+labs/lab5/sqlmap/localhost/dump/SQLite_masterdb/Feedbacks.csv
+labs/lab5/sqlmap/localhost/dump/SQLite_masterdb/Hints.csv
+labs/lab5/sqlmap/localhost/dump/SQLite_masterdb/PrivacyRequests.csv
+labs/lab5/sqlmap/localhost/dump/SQLite_masterdb/Products.csv
+labs/lab5/sqlmap/localhost/dump/SQLite_masterdb/sqlite_sequence.csv
+labs/lab5/sqlmap/localhost/log
+labs/lab5/sqlmap/localhost/session.sqlite
+labs/lab5/sqlmap/localhost/target.txt
+labs/lab5/sqlmap/results-03092026_0426pm.csv
+labs/lab5/sqlmap/results-03092026_0427pm.csv
