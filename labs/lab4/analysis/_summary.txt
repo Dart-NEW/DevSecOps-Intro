@@ -1,0 +1,159 @@
+]633;E;jq -r '.Results[]?.Licenses[]?.Name' labs/lab4/trivy/trivy-licenses.json | sort | uniq -c | sort -nr | head -20;6f32a736-491d-46aa-a9b1-98cbd6e6377f]633;C--- ACCURACY ---
+]633;E;{   echo "=== Package Detection Comparison ==="\x3b   jq -r '.artifacts[] | "\\(.name)@\\(.version)"' labs/lab4/syft/juice-shop-syft-native.json | sort > labs/lab4/comparison/syft-packages.txt\x3b   jq -r '.Results[]?.Packages[]? | "\\(.Name)@\\(.Version)"' labs/lab4/trivy/juice-shop-trivy-detailed.json | sort > labs/lab4/comparison/trivy-packages.txt\x3b   comm -12 labs/lab4/comparison/syft-packages.txt labs/lab4/comparison/trivy-packages.txt > labs/lab4/comparison/common-packages.txt\x3b   comm -23 labs/lab4/comparison/syft-packages.txt labs/lab4/comparison/trivy-packages.txt > labs/lab4/comparison/syft-only.txt\x3b   comm -13 labs/lab4/comparison/syft-packages.txt labs/lab4/comparison/trivy-packages.txt > labs/lab4/comparison/trivy-only.txt\x3b   echo "Packages detected by both tools: $(wc -l < labs/lab4/comparison/common-packages.txt)"\x3b   echo "Packages only detected by Syft: $(wc -l < labs/lab4/comparison/syft-only.txt)"\x3b   echo "Packages only detected by Trivy: $(wc -l < labs/lab4/comparison/trivy-only.txt)"\x3b   echo\x3b   echo "=== Vulnerability Detection Overlap ==="\x3b   jq -r '.matches[]? | .vulnerability.id' labs/lab4/syft/grype-vuln-results.json | sort | uniq > labs/lab4/comparison/grype-cves.txt\x3b   jq -r '.Results[]?.Vulnerabilities[]? | .VulnerabilityID' labs/lab4/trivy/trivy-vuln-detailed.json | sort | uniq > labs/lab4/comparison/trivy-cves.txt\x3b   echo "CVEs found by Grype: $(wc -l < labs/lab4/comparison/grype-cves.txt)"\x3b   echo "CVEs found by Trivy: $(wc -l < labs/lab4/comparison/trivy-cves.txt)"\x3b   echo "Common CVEs: $(comm -12 labs/lab4/comparison/grype-cves.txt labs/lab4/comparison/trivy-cves.txt | wc -l)"\x3b } > labs/lab4/comparison/accuracy-analysis.txt;6f32a736-491d-46aa-a9b1-98cbd6e6377f]633;C=== Package Detection Comparison ===
+Packages detected by both tools: 1126
+Packages only detected by Syft: 13
+Packages only detected by Trivy: 9
+
+=== Vulnerability Detection Overlap ===
+CVEs found by Grype: 95
+CVEs found by Trivy: 91
+Common CVEs: 26
+
+--- VULN ---
+]633;E;docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD":/tmp aquasec/trivy:latest image --scanners license --format json --output /tmp/labs/lab4/trivy/trivy-licenses.json bkimminich/juice-shop:v19.0.0;6f32a736-491d-46aa-a9b1-98cbd6e6377f]633;C=== Vulnerability Analysis ===
+
+Grype Vulnerabilities by Severity:
+     11 Critical
+     88 High
+      3 Low
+     32 Medium
+     12 Negligible
+
+Trivy Vulnerabilities by Severity:
+     10 CRITICAL
+     81 HIGH
+     18 LOW
+     34 MEDIUM
+
+=== License Analysis Summary ===
+Tool Comparison:
+- Syft found 32 unique license types
+- Trivy found 28 unique license types
+
+--- SBOM ---
+]633;E;docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD":/tmp aquasec/trivy:latest image --format table --output /tmp/labs/lab4/trivy/juice-shop-trivy-table.txt --list-all-pkgs bkimminich/juice-shop:v19.0.0;6f32a736-491d-46aa-a9b1-98cbd6e6377f]633;C=== SBOM Component Analysis ===
+
+Syft Package Counts:
+      1 binary
+     10 deb
+   1128 npm
+
+Trivy Package Counts:
+     10 bkimminich/juice-shop:v19.0.0 (debian 12.11) - unknown
+   1125 Node.js - unknown
+
+=== License Analysis ===
+
+Syft Licenses:
+      1 0BSD
+      1 ad-hoc
+      1 Apache2
+     15 Apache-2.0
+      5 Artistic
+      5 BlueOak-1.0.0
+      1 BSD
+     12 BSD-2-Clause
+      1 (BSD-2-Clause OR MIT OR Apache-2.0)
+     16 BSD-3-Clause
+      4 GFDL-1.2
+      5 GPL
+      1 GPL-1
+      1 GPL-1+
+      6 GPL-2
+      1 GPL-2.0
+      4 GPL-3
+    143 ISC
+      4 LGPL
+      1 LGPL-2.1
+     19 LGPL-3.0
+    890 MIT
+      2 (MIT OR Apache-2.0)
+      1 (MIT OR WTFPL)
+      2 MIT/X11
+      2 MPL-2.0
+      1 public-domain
+      2 sha256:cb992345949ccd6e8394b2cd6c465f7b897c864f845937dbf64e8997f389e164
+      2 Unlicense
+      1 WTFPL
+      1 WTFPL OR ISC
+      1 (WTFPL OR MIT)
+
+Trivy Licenses (OS Packages):
+      1 ad-hoc
+      1 Apache-2.0
+      2 Artistic-2.0
+      1 GFDL-1.2-only
+      1 GPL-1.0-only
+      1 GPL-1.0-or-later
+      3 GPL-2.0-only
+      2 GPL-2.0-or-later
+      1 GPL-3.0-only
+      1 LGPL-2.0-or-later
+      1 LGPL-2.1-only
+      1 public-domain
+
+Trivy Licenses (Node.js):
+      1 0BSD
+     12 Apache-2.0
+      5 BlueOak-1.0.0
+     12 BSD-2-Clause
+      1 (BSD-2-Clause OR MIT OR Apache-2.0)
+     14 BSD-3-Clause
+      1 GPL-2.0-only
+    143 ISC
+     19 LGPL-3.0-only
+    878 MIT
+      2 (MIT OR Apache-2.0)
+      1 (MIT OR WTFPL)
+      2 MIT/X11
+      2 MPL-2.0
+      2 Unlicense
+      1 WTFPL
+      1 WTFPL OR ISC
+      1 (WTFPL OR MIT)
+
+--- TOP5_TRIVY ---
+CRITICAL | CVE-2015-9235 | jsonwebtoken 0.1.0 | fixed: 4.2.2 | https://avd.aquasec.com/nvd/cve-2015-9235
+CRITICAL | CVE-2019-10744 | lodash 2.4.2 | fixed: 4.17.12 | https://avd.aquasec.com/nvd/cve-2019-10744
+CRITICAL | CVE-2023-32314 | vm2 3.9.17 | fixed: 3.9.18 | https://avd.aquasec.com/nvd/cve-2023-32314
+CRITICAL | CVE-2023-37466 | vm2 3.9.17 | fixed: 3.10.0 | https://avd.aquasec.com/nvd/cve-2023-37466
+CRITICAL | CVE-2023-37903 | vm2 3.9.17 | fixed: N/A | https://avd.aquasec.com/nvd/cve-2023-37903
+
+--- TOP5_GRYPE ---
+Critical | CVE-2025-15467 | libssl3 3.0.17-1~deb12u2 | fix: 3.0.18-1~deb12u2
+Critical | CVE-2025-55130 | node 22.18.0 | fix: 20.20.0
+Critical | GHSA-5mrr-rgp6-x4gr | marsdb 0.6.11 | fix: N/A
+Critical | GHSA-99p7-6v5w-7xg8 | vm2 3.9.17 | fix: 3.10.2
+Critical | GHSA-c7hr-j4mj-j2w6 | jsonwebtoken 0.1.0 | fix: 4.2.2
+
+--- SECRET_LINES ---
+2303:Total: 1 (UNKNOWN: 0, LOW: 0, MEDIUM: 0, HIGH: 1, CRITICAL: 0)
+2305:HIGH: AsymmetricPrivateKey (private-key)
+2321:Total: 1 (UNKNOWN: 0, LOW: 0, MEDIUM: 1, HIGH: 0, CRITICAL: 0)
+2323:MEDIUM: JWT (jwt-token)
+2339:Total: 1 (UNKNOWN: 0, LOW: 0, MEDIUM: 1, HIGH: 0, CRITICAL: 0)
+2341:MEDIUM: JWT (jwt-token)
+2357:Total: 1 (UNKNOWN: 0, LOW: 0, MEDIUM: 0, HIGH: 1, CRITICAL: 0)
+2359:HIGH: AsymmetricPrivateKey (private-key)
+
+--- LICENSE_TOP20 ---
+    878 MIT
+    143 ISC
+     19 LGPL-3.0-only
+     14 BSD-3-Clause
+     13 Apache-2.0
+     12 BSD-2-Clause
+      5 BlueOak-1.0.0
+      4 GPL-2.0-only
+      2 Unlicense
+      2 MPL-2.0
+      2 MIT/X11
+      2 (MIT OR Apache-2.0)
+      2 GPL-2.0-or-later
+      2 Artistic-2.0
+      1 (WTFPL OR MIT)
+      1 WTFPL OR ISC
+      1 WTFPL
+      1 public-domain
+      1 (MIT OR WTFPL)
+      1 LGPL-2.1-only
